@@ -11,6 +11,11 @@ import * as Markdown from './markdown';
 import { contentSize, parse, type PageSetup } from './page-setup';
 import { templateHTML } from './defaults';
 import type { DocStyle } from './types';
+// The polyfill build auto-paginates on load, honoring the same `@page` /
+// `break-*` rules the browser's print engine reads for the PDF export -
+// imported as a raw file (not the `pagedjs` package entry) because it must
+// run inside the preview iframe's own document, not the host page's.
+import pagedPolyfillSource from '../../node_modules/pagedjs/dist/paged.polyfill.min.js?raw';
 
 const CONTENT_TOKENS = ['{{ content }}', '{{content}}', '{{ contenido }}', '{{contenido}}'];
 const TITLE_TOKENS = ['{{ title }}', '{{title}}', '{{ titulo }}', '{{titulo}}'];
@@ -71,6 +76,37 @@ export function previewHead(page: PageSetup): string {
 }
 
 /**
+ * The polyfill script is the same ~500kB blob for every render; loading it
+ * from a stable object URL (created once) keeps a preview keystroke from
+ * copying that text into every composed document.
+ */
+let pagedPolyfillURL: string | null = null;
+function pagedPolyfillScriptURL(): string {
+	if (pagedPolyfillURL === null) {
+		const blob = new Blob([pagedPolyfillSource], { type: 'text/javascript' });
+		pagedPolyfillURL = URL.createObjectURL(blob);
+	}
+	return pagedPolyfillURL;
+}
+
+/**
+ * Screen-only head that paginates the preview the same way the print engine
+ * paginates the PDF: it hands the document's own `@page` and `break-*` rules
+ * to the Paged.js polyfill instead of re-deriving page breaks by hand.
+ */
+export function paginateHead(): string {
+	// The `media="screen"` attribute (not just an `@media screen` rule inside)
+	// is what the polyfill's own style scan uses to leave a sheet alone rather
+	// than stripping it out to feed into its @page/break-rule parser.
+	return `<style id="markport-paginate" media="screen">
+  html { background: #d8d8d8; }
+  body { margin: 0; padding: 16px 0; }
+  .pagedjs_page { background: #fff; margin: 0 auto 16px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); }
+</style>
+<script src="${pagedPolyfillScriptURL()}"></script>`;
+}
+
+/**
  * Object URLs for a style's bundled assets, created on demand and revoked
  * together. One bag per rendered document keeps the browser from leaking a
  * URL for every keystroke in the editor.
@@ -114,11 +150,11 @@ function inlineAssetURLs(css: string, assets: AssetURLs): string {
 export function compose(
 	markdown: string,
 	style: DocStyle,
-	options: { preview?: boolean } = {}
+	options: { preview?: boolean; paginate?: boolean } = {}
 ): { html: string; assets: AssetURLs } {
 	const page = parse(style.css);
 	const assets = new AssetURLs(style);
-	const head = options.preview ? previewHead(page) : '';
+	const head = options.paginate ? paginateHead() : options.preview ? previewHead(page) : '';
 	let html = document(markdown, style, head);
 
 	const sheet = `<style id="markport-style">\n${inlineAssetURLs(style.css, assets)}\n</style>`;
