@@ -5,9 +5,9 @@
 
 /** Base style: uses only fonts installed on the system so it
     works on the first try; can be changed from the editor. Same files
-    that seed the "My style" preset in `src/lib/styles/my-style/`. */
-export { default as templateHTML } from './styles/my-style/template.html?raw';
-export { default as css } from './styles/my-style/style.css?raw';
+    that seed the "My style" preset in `src/lib/styles/simple/`. */
+export { default as templateHTML } from './styles/simple/template.html?raw';
+export { default as css } from './styles/simple/style.css?raw';
 
 /** Sample document used for sidebar thumbnails. */
 export const sampleMarkdown = `# Ada Lovelace
