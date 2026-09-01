@@ -1,9 +1,10 @@
 # Markport Web
 
-Web port of [Markport](https://github.com/leonardoramirezr/markport), the native macOS
-app for exporting Markdown to PDF with custom CSS + HTML styles. Same idea, same
-screens, no backend: Svelte 5, Vite and SvelteKit, built as a static site and
-deployed to GitHub Pages. Documents and styles never leave the browser.
+A web app for exporting Markdown to PDF with custom CSS + HTML styles. No
+backend: Svelte 5, Vite and SvelteKit, built as a static site and deployed to
+GitHub Pages. Documents and styles never leave the browser.
+
+Use it at **https://leonardoramirezr.github.io/markport-web/**.
 
 ## Develop
 
@@ -27,7 +28,7 @@ build as `BASE_PATH`, so the bundle works from `https://<user>.github.io/<repo>/
 To reproduce that build locally:
 
 ```bash
-BASE_PATH=/markport-web-svelte npm run build
+BASE_PATH=/markport-web npm run build
 ```
 
 ## How it works
@@ -39,8 +40,7 @@ document at page size) and the Markdown area on the right, with the
 
 ### A style
 
-A style is the same three files the macOS app keeps in a folder, stored here as
-one IndexedDB record:
+A style is three files, stored here as one IndexedDB record:
 
 ```
 style.css        stylesheet (defines @page, typography, margins…)
@@ -78,34 +78,32 @@ stylesheet, which the browser's own print engine reads.
 ## Structure
 
 ```
-src/lib/markdown.ts        Markdown -> HTML, ported from the Swift original
+src/lib/markdown.ts        Markdown -> HTML
 src/lib/page-setup.ts      @page -> paper size and margins
 src/lib/renderer.ts        template + content composition, asset resolution
 src/lib/fonts.ts           availability detection, @font-face generation
-src/lib/storage.ts         IndexedDB, standing in for the styles folder
+src/lib/storage.ts         IndexedDB
 src/lib/app-state.svelte.ts  runes state: styles, draft, export
 src/lib/components/        onboarding, sidebar, editor, style editor, previews
 tests/                     Markdown and @page parser tests
 ```
 
-## Notes on the port
+## Implementation notes
 
-- **Custom Markdown** (`src/lib/markdown.ts`): a line-by-line port of
-  `Markdown.swift` — headings, paragraphs, nested lists, blockquotes, rules, code
-  blocks, GFM tables, emphasis, links, images and embedded HTML. No dependency,
-  and the same output as the native app.
-- **PDF export**: `NSPrintOperation` has no web equivalent, so the composed
-  document is handed to the browser's print engine in an off-screen iframe.
-  It honours `@page`, embeds the bundled fonts, and its *Save as PDF*
-  destination produces the paginated file.
-- **Previews**: where the macOS app zoomed a `WKWebView` and snapshotted it, the
-  previews and sidebar thumbnails are live iframes sized in points and scaled with
-  a CSS transform, so what you see is the real document rather than a picture of it.
-- **Editor**: a plain `<textarea>` with a 0.28s debounce, matching the interval
-  the `NSTextView` used, so typing never re-renders the previews on every keystroke.
-- **Storage**: IndexedDB rather than Application Support. Rune state is proxied,
-  so what reaches the database is always a `$state.snapshot`.
+- **Custom Markdown** (`src/lib/markdown.ts`): headings, paragraphs, nested
+  lists, blockquotes, rules, code blocks, GFM tables, emphasis, links, images
+  and embedded HTML. No dependency.
+- **PDF export**: the composed document is handed to the browser's print
+  engine in an off-screen iframe. It honours `@page`, embeds the bundled
+  fonts, and its *Save as PDF* destination produces the paginated file.
+- **Previews**: the previews and sidebar thumbnails are live iframes sized in
+  points and scaled with a CSS transform, so what you see is the real
+  document rather than a picture of it.
+- **Editor**: a plain `<textarea>` with a 0.28s debounce, so typing never
+  re-renders the previews on every keystroke.
+- **Storage**: IndexedDB. Rune state is proxied, so what reaches the database
+  is always a `$state.snapshot`.
 
 ## License
 
-MIT, as the original.
+MIT.
