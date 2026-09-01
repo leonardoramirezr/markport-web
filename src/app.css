@@ -1,0 +1,167 @@
+/* Design tokens mirroring Theme.swift: system canvas, sidebar, hairline and
+   faint colors, in both appearances. */
+:root {
+	color-scheme: light dark;
+
+	--canvas: #ffffff;
+	--sidebar: #f0eff4;
+	--sidebar-solid: #f0eff4;
+	--surface: #ffffff;
+	--hairline: rgba(0, 0, 0, 0.14);
+	--label: #131313;
+	--secondary: rgba(0, 0, 0, 0.55);
+	--faint: rgba(0, 0, 0, 0.34);
+	--tint: rgba(0, 0, 0, 0.06);
+	--tint-strong: rgba(0, 0, 0, 0.12);
+	--accent: #0a68d8;
+	--warning: #c26401;
+	--success: #1f7a3d;
+	--shadow: rgba(0, 0, 0, 0.16);
+	--corner: 8px;
+	--sidebar-width: 252px;
+
+	--ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+	--mono: 'SF Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--canvas: #1c1c1e;
+		--sidebar: #262629;
+		--sidebar-solid: #262629;
+		--surface: #2c2c2e;
+		--hairline: rgba(255, 255, 255, 0.14);
+		--label: #ededed;
+		--secondary: rgba(255, 255, 255, 0.62);
+		--faint: rgba(255, 255, 255, 0.38);
+		--tint: rgba(255, 255, 255, 0.08);
+		--tint-strong: rgba(255, 255, 255, 0.16);
+		--accent: #4c9dff;
+		--warning: #f0a53a;
+		--success: #4bcb70;
+		--shadow: rgba(0, 0, 0, 0.5);
+	}
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+}
+
+body {
+	background: var(--canvas);
+	color: var(--label);
+	font-family: var(--ui);
+	font-size: 13px;
+	-webkit-font-smoothing: antialiased;
+	overflow: hidden;
+}
+
+button {
+	font-family: inherit;
+	color: inherit;
+	cursor: pointer;
+}
+
+input,
+textarea {
+	font-family: inherit;
+	color: inherit;
+}
+
+:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+/* Monochrome primary button, no decoration (PrimaryButtonStyle). */
+.btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	border: 0;
+	border-radius: 7px;
+	padding: 9px 16px;
+	font-size: 13px;
+	font-weight: 500;
+	background: var(--label);
+	color: var(--canvas);
+	transition: opacity 0.12s ease;
+}
+
+.btn:active {
+	opacity: 0.75;
+}
+
+.btn:disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+
+.btn.secondary {
+	background: var(--tint);
+	color: var(--label);
+}
+
+/* Quiet button for bars and toolbars (QuietButtonStyle). */
+.quiet {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	border: 0;
+	border-radius: 6px;
+	padding: 5px 10px;
+	font-size: 12px;
+	background: var(--tint);
+	color: var(--label);
+}
+
+.quiet:hover {
+	background: var(--tint-strong);
+}
+
+.icon-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border: 0;
+	border-radius: 6px;
+	background: transparent;
+	color: var(--label);
+}
+
+.icon-button:hover {
+	background: var(--tint);
+}
+
+.field {
+	width: 100%;
+	border: 0;
+	border-radius: 7px;
+	padding: 10px 12px;
+	font-size: 14px;
+	background: var(--tint);
+}
+
+.divider {
+	flex: none;
+	background: var(--hairline);
+}
+
+.divider.v {
+	width: 1px;
+	align-self: stretch;
+}
+
+.divider.h {
+	height: 1px;
+	width: 100%;
+}
