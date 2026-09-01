@@ -4,6 +4,7 @@
  */
 import { browser } from '$app/environment';
 import * as defaults from './defaults';
+import { predefinedStyles } from './predefined-styles';
 import { composeForPrint } from './renderer';
 import { deleteStyle, loadStyles, putStyle, readPref, writePref } from './storage';
 import type { DocStyle, StyleAsset } from './types';
@@ -17,12 +18,12 @@ export interface Message {
 const DRAFT_KEY = 'draft.md';
 const SELECTED_KEY = 'selectedStyle';
 
-export function newStyle(name: string): DocStyle {
+export function newStyle(name: string, css: string = defaults.css, html: string = defaults.templateHTML): DocStyle {
 	return {
 		id: crypto.randomUUID(),
 		name,
-		css: defaults.css,
-		html: defaults.templateHTML,
+		css,
+		html,
 		updatedAt: Date.now(),
 		assets: {}
 	};
@@ -54,6 +55,13 @@ class AppState {
 		if (!browser) return;
 		try {
 			this.styles = await loadStyles();
+			// Fresh install, empty IndexedDB: seed the bundled presets instead of
+			// sending the user through onboarding.
+			if (this.styles.length === 0) {
+				for (const preset of predefinedStyles) {
+					await this.save(newStyle(preset.name, preset.css, preset.html));
+				}
+			}
 			this.selectedStyleID = (await readPref<string>(SELECTED_KEY)) ?? null;
 			this.markdown = (await readPref<string>(DRAFT_KEY)) ?? defaults.welcomeMarkdown;
 		} catch (error) {
